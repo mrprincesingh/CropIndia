@@ -1,41 +1,43 @@
 import React from 'react';
-import { Table, TableCaption, TableContainer, Tbody, Td, Th, Thead, Tr, Tfoot } from '@chakra-ui/react';
+import { Table, TableCaption, TableContainer, Tbody, Td, Th, Thead, Tr, Tfoot, Button, Box } from '@chakra-ui/react';
 
-const TableComponent = ({ cropData }) => {
+const TableComponent = ({ cropData, onPageChange, currentPage, totalPage }) => {
+
+  console.log('cropData:', cropData);
+  console.log('currentPage:', currentPage);
+  console.log('totalPage:', totalPage);
+  const itemsPerPage = 5; 
+
+  const handleClick = (page) => {
+    onPageChange(page);
+  };
+
+  const renderPagination = () => {
+    const pages = [];
+    for (let i = 1; i <= totalPage; i++) {
+      pages.push(
+        <Button
+          key={i}
+          variant="outline"
+          size="sm"
+          colorScheme={currentPage === i ? 'blue' : 'gray'}
+          onClick={() => handleClick(i)}
+        >
+          {i}
+        </Button>
+      );
+    }
+    return pages;
+  };
+
+  // Calculate the range of items to display for the current page
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = cropData.slice(startIndex, endIndex);
+
   return (
     <div>
-      <TableContainer>
-        <Table variant='simple'>
-          <TableCaption>Crop Data</TableCaption>
-          <Thead>
-            <Tr>
-              <Th>State</Th>
-              <Th>Year</Th>
-              <Th>Crop</Th>
-              <Th>District</Th>
-              <Th>Area</Th>
-              <Th>Yield</Th>
-              <Th>Production</Th>
-              {/* Add more Th for additional properties in your data */}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {cropData.map((data, index) => (
-              <Tr key={index}>
-                <Td>{data.state}</Td>
-                <Td>{data.Year}</Td>
-                <Td>{data.Crop}</Td>
-                <Td>{data.District}</Td>
-                <Td>{data.Area}</Td>
-                <Td>{Math.floor(data.Yield)}</Td>
-                <Td>{data.Production} Tonnes</Td>
-                {/* Add more Td for additional properties in your data */}
-              </Tr>
-            ))}
-          </Tbody>
-        
-        </Table>
-      </TableContainer>
+    
     </div>
   );
 };
