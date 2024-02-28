@@ -50,7 +50,7 @@ export const getDataByYearAndState = async (req, res, next) => {
     if (crop) {
       filteredData = filterDataByCrop(filteredData, crop);
     }
-    // Convert production units to Tonnes
+    
     filteredData = convertProductionUnitsToTonnes(filteredData);
     const yearlyData = calculateProductionPerYear(filteredData);
     const cropdata = calculateProductionPerCrop(filteredData);
@@ -64,17 +64,17 @@ export const getDataByYearAndState = async (req, res, next) => {
       return formattedData;
     };
 
-    // Inside the try block, after calculating yearlyData and cropdata
+    
     const formattedYearlyData = formatProductionData(yearlyData);
     const formattedCropData = formatProductionData(cropdata);
 
-    // If only the state is selected and no specific year, return complete state data
+    
     if (state && !year) {
       let stateData = filterDataByState(filteredData, state);
       stateData = sortData(stateData, 'District');
 
       const paginatedData = stateData.slice(startIndex, endIndex);
-      // Send the response with the complete state data
+      
       return res.json({
         success: true,
         formattedYearlyData,
@@ -93,12 +93,12 @@ export const getDataByYearAndState = async (req, res, next) => {
       });
     }
 
-    // Sort data by default column 'District'
+
     const defaultSortColumn = 'District';
     filteredData = sortData(filteredData, defaultSortColumn);
 
     const paginatedData = filteredData.slice(startIndex, endIndex);
-    // Send the response with filtered or complete data based on parameters
+
     res.json({
       success: true,
       formattedYearlyData,
@@ -110,7 +110,7 @@ export const getDataByYearAndState = async (req, res, next) => {
         Area: row.Area,
         Production: parseFloat(row.Production),
         Yield: row.Yield,
-        state: state, // Add state key here
+        state: state, 
       })),
       currentPage: page,
       totalPages: Math.ceil(filteredData.length / itemsPerPage),

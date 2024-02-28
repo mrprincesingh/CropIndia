@@ -8,19 +8,6 @@ const dbClient = new DynamoDBClient({
     secretAccessKey: "HQLd9molfnPJFnfe0pcqHP9204BBmUhhALsU39Jo",
   },
 });
-
-const marshallOptions = {
-  convertEmptyValues: false,
-  removeUndefinedValues: false,
-  convertClassInstanceToMap: false,
-  convertTopLevelContainer: false,
-};
-
-const unmarshallOptions = {
-  wrapNumbers: false,
-};
-
-const translateConfig = { marshallOptions, unmarshallOptions };
-const documentClient = DynamoDBDocumentClient.from(dbClient, translateConfig);
+const documentClient = DynamoDBDocumentClient.from(dbClient);
 
 export default documentClient;

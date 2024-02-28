@@ -72,18 +72,18 @@ const calculateProductionPerCrop = (data) => {
   };
   
 
-// Function to filter data based on year
+
 const filterDataByYear = (data, year) => {
     return data.filter((row) => row.Year === year);
   };
   
-  // Function to filter data based on state
+
   const filterDataByState = (data, state) => {
     return data.filter((row) => row.State === state);
     
   };
   
-  // Function to filter data based on district
+  
   const filterDataByDistrict = (data, district) => {
     return data.filter((row) => row.District === district);
   };
