@@ -13,7 +13,9 @@ async function getAllProducts() {
     let params = {
       TableName: TableName,
     };
- 
+    response = await documentClient.send(new ScanCommand(params));
+    // console.log(response.Count)
+   
     do {
       response = await documentClient.send(new ScanCommand(params));
       item_count += response.Items.length;
@@ -25,11 +27,13 @@ async function getAllProducts() {
  
     
       if (response.LastEvaluatedKey) {
+        // console.log(response.LastEvaluatedKey)
         params.ExclusiveStartKey = response.LastEvaluatedKey;
         console.log(`Fetched ${response.Items.length} items. Total items so far: ${item_count}`);
       }
     } while (response.LastEvaluatedKey);
- 
+   
+
     console.log("Total number of items found:", item_count);
     // console.log(allItems)
     return allItems; 

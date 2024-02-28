@@ -35,8 +35,8 @@ export const getDataByYearAndState = async (req, res, next) => {
     const startIndex = (page - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     let filteredData = cropsData;
-
     for (const filter of filterFunctions) {
+
       const { key, filterFn } = filter;
       if (req.query[key]) {
         filteredData = filterFn(filteredData, req.query[key]);
@@ -69,29 +69,6 @@ export const getDataByYearAndState = async (req, res, next) => {
     const formattedCropData = formatProductionData(cropdata);
 
     
-    if (state && !year) {
-      let stateData = filterDataByState(filteredData, state);
-      stateData = sortData(stateData, 'District');
-
-      const paginatedData = stateData.slice(startIndex, endIndex);
-      
-      return res.json({
-        success: true,
-        formattedYearlyData,
-        formattedCropData,
-        productionData: paginatedData.map((row) => ({
-          Year: row.Year,
-          Crop: row.Crop,
-          District: row.District,
-          Area: row.Area,
-          Production: parseFloat(row.Production),
-          Yield: row.Yield,
-          state: state,
-        })),
-        currentPage: page,
-        totalPages: Math.ceil(stateData.length / itemsPerPage),
-      });
-    }
 
 
     const defaultSortColumn = 'District';
@@ -104,13 +81,14 @@ export const getDataByYearAndState = async (req, res, next) => {
       formattedYearlyData,
       formattedCropData,
       productionData: paginatedData.map((row) => ({
+        
         Year: row.Year,
         Crop: row.Crop,
         District: row.District,
         Area: row.Area,
         Production: parseFloat(row.Production),
         Yield: row.Yield,
-        state: state, 
+        state: row.State
       })),
       currentPage: page,
       totalPages: Math.ceil(filteredData.length / itemsPerPage),
