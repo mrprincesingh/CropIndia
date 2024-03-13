@@ -1,104 +1,113 @@
-import {
-  calculateProductionPerCrop,
-  calculateProductionPerYear,
-  convertProductionUnitsToTonnes,
-  filterDataByCrop,
-  filterDataByDistrict,
-  filterDataByState,
-  filterDataByYear,
-  sortData,
-
-} from "../Utils/ProductionUtils.js";
-import getAllProducts from "../data.js";
+import getAllProducts from "../server.js";
 
 
 
-const filterFunctions = [
-
-  { key: 'state', filterFn: filterDataByState },
-  { key: 'district', filterFn: filterDataByDistrict },
-  { key: 'year', filterFn: filterDataByYear },
-  { key: 'crop', filterFn: filterDataByCrop },
-];
-
-export const getDataByYearAndState = async (req, res, next) => {
+export const getDataByYearAndState = async (req, res) => {
   try {
-    const cropsData = await getAllProducts();
-    const year = req.query.year;
-    const state = req.query.state;
-    const district = req.query.district;
-    const crop = req.query.crop;
-    const page = req.query.page || 1;
-
-
-    const itemsPerPage = 50;
-    const startIndex = (page - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    let filteredData = cropsData;
-    for (const filter of filterFunctions) {
-
-      const { key, filterFn } = filter;
-      if (req.query[key]) {
-        filteredData = filterFn(filteredData, req.query[key]);
-      }
-    }
-
-    if (district) {
-      filteredData = filterDataByDistrict(filteredData, district);
-    }
-
-    if (crop) {
-      filteredData = filterDataByCrop(filteredData, crop);
-    }
+    let products
     
-    filteredData = convertProductionUnitsToTonnes(filteredData);
-    const yearlyData = calculateProductionPerYear(filteredData);
-    const cropdata = calculateProductionPerCrop(filteredData);
-
-
-    const formatProductionData = (data) => {
-      const formattedData = {};
-      Object.entries(data).forEach(([key, production]) => {
-        formattedData[key] = production;
-      });
-      return formattedData;
-    };
-
+    if(req.query.state){
     
-    const formattedYearlyData = formatProductionData(yearlyData);
-    const formattedCropData = formatProductionData(cropdata);
-
-    
-
-
-    const defaultSortColumn = 'District';
-    filteredData = sortData(filteredData, defaultSortColumn);
-
-    const paginatedData = filteredData.slice(startIndex, endIndex);
-
-    res.json({
-      success: true,
-      formattedYearlyData,
-      formattedCropData,
-      productionData: paginatedData.map((row) => ({
+      if(req.query.year){
+      
+        if(req.query.crop){
         
-        Year: row.Year,
-        Crop: row.Crop,
-        District: row.District,
-        Area: row.Area,
-        Production: parseFloat(row.Production),
-        Yield: row.Yield,
-        state: row.State
-      })),
-      currentPage: page,
-      totalPages: Math.ceil(filteredData.length / itemsPerPage),
-    });
+          products = await getAllProducts({
+            KeyConditionExpression: "#s = :s AND begins_with(#c, :c)",
+            FilterExpression: "begins_with(#y, :y)",
+            ExpressionAttributeNames: {
+              "#s": "State",
+              "#y": "year_sort_id",
+              "#c": "crop_sort_id",
+        },
+        ExpressionAttributeValues: { ":s": req.query.state, ":y": req.query.year, ":c": req.query.crop },
+      });
+    }else{
+ 
+      products = await getAllProducts({
+        IndexName: "State-year_sort_id-index",
+        KeyConditionExpression: "#s = :s AND begins_with(#y, :y)",
+        ExpressionAttributeNames: { "#s": "State", "#y": "year_sort_id" },
+        ExpressionAttributeValues: { ":s": req.query.state, ":y": req.query.year },
+      });
+    }
+   }else{
+    
+    if (req.query.crop ) {
+   
+      products = await getAllProducts({
+        KeyConditionExpression: "#s = :s AND begins_with(#c , :c)",
+        ExpressionAttributeNames: { "#s": "State", "#c": "crop_sort_id" },
+        ExpressionAttributeValues: { ":s": req.query.state, ":c": req.query.crop },
+      });
+    } else {
+
+    
+      products = await getAllProducts({
+        KeyConditionExpression: "#s = :s",
+        ExpressionAttributeNames: { "#s": "State" },
+        ExpressionAttributeValues: { ":s": req.query.state },
+      });
+    }
+   }
+  }else {
+    console.log(" ")
+  }
+
+  const totalProductionPerCropArray = [];
+  const totalProductionPerYearArray = [];
+  
+  // Iterate through products array
+  if(products){
+     products.forEach(product => {
+    const crop = product.Crop;
+    const year = product.Year;
+    const production = parseFloat(product.Production); 
+  
+    // Calculate total production per crop
+    const existingCropIndex = totalProductionPerCropArray.findIndex(item => item.crop === crop);
+    if (existingCropIndex !== -1) {
+      totalProductionPerCropArray[existingCropIndex].totalProduction += production;
+    } else {
+      totalProductionPerCropArray.push({
+        crop,
+        totalProduction: production
+      });
+    }
+  
+    // Calculate total production per year
+    const existingYearIndex = totalProductionPerYearArray.findIndex(item => item.year === year);
+    if (existingYearIndex !== -1) {
+      totalProductionPerYearArray[existingYearIndex].totalProduction += production;
+    } else {
+      totalProductionPerYearArray.push({
+        year,
+        totalProduction: production
+      });
+    }
+  });
+  }
+ 
+  
+
+   res.status(200).json({ success: true,   data: { products },totalProductionPerCropArray,totalProductionPerYearArray });
   } catch (error) {
-    console.error("Error getting data by year and state:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    console.error('Error getting data by year and state:', error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 };
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+ 

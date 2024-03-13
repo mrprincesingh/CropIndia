@@ -4,8 +4,10 @@ import {  getDataByYearAndState } from "../controllers/dashboardController.js";
 const router = express.Router();
 
 
-router.route("/getDataByYear").get(getDataByYearAndState)
-// Route for getting filtered data
+router.route("/crops").get(getDataByYearAndState)
+
+
+
 
 
 
