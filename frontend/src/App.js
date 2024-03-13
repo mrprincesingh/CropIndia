@@ -1,13 +1,16 @@
 
 import './App.css';
 import Dashboard from './component/Dashboard/Dashboard';
-import TableComponent from './component/table/TableComponent';
+import Navbar from './component/Navbar/Navbar';
+import DataTable from './component/table/DataTable';
+
 
 function App() {
   return (
     <div className="App">
-      <Dashboard />  
-   
+    
+    <Navbar/>
+   <Dashboard />
     </div>
   );
 }

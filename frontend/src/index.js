@@ -9,7 +9,7 @@ import { store } from './Redux/store';
 import { ChakraProvider } from '@chakra-ui/react'
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <ChakraProvider>
+<ChakraProvider>
  <ThemeProvider theme={createTheme}>
   <Provider store={store}>
   <App />

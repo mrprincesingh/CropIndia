@@ -1,37 +1,27 @@
+// actions.js
 import * as types from "./actionTypes";
 import axios from "axios";
 
- export const getCrop = ({state="" , year="" , page}) => (dispatch) => {
-console.log("state , year" , state , year)
-    dispatch({type: types.GET_CROP_REQUEST});
-    return axios
-    .get(`http://localhost:3005/api/indiancrop/getDataByYear?state=${state}&year=${year}`)
-    .then((res) => {
-      //  console.log(res)
-        dispatch({type: types.GET_CROP_SUCCES, payload: res.data});
-   
-    })
-    .catch((e) => {
-        dispatch({type: types.GET_CROP_FAILURE, payload: e});
-    });
-    
-  
+export const getCrop = ({state="" , year="" , crop=""}) => async (dispatch) => {
+  dispatch({ type: types.GET_CROP_REQUEST });
+
+  try {
+    let apiUrl = 'http://localhost:3005/api/indiancrop/crops?';
+
+    if (state.length >0) {
+      apiUrl += `&state=${state}`;
+    }
+
+    if (year.length >0) {
+        apiUrl += `&year=${year}`;
+      }
+      if(crop.length>0){
+        apiUrl += `&crop=${crop}`
+      }
+
+    const res = await axios.get(apiUrl);
+    dispatch({ type: types.GET_CROP_SUCCES, payload: res.data });
+  } catch (error) {
+    dispatch({ type: types.GET_CROP_FAILURE, payload: error });
+  }
 };
-
-
-export const getCrop1 = () => (dispatch) => {
-    console.log("state , year" )
-        dispatch({type: types.GET_CROP_REQUEST});
-        return axios
-        .get(`http://localhost:3005/api/indiancrop/getDataByYear`)
-        .then((res) => {
-          //  console.log(res)
-            dispatch({type: types.GET_CROP_SUCCES, payload: res.data});
-       
-        })
-        .catch((e) => {
-            dispatch({type: types.GET_CROP_FAILURE, payload: e});
-        });
-        
-      
-    };

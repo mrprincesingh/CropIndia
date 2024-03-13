@@ -1,246 +1,349 @@
-import React, { useEffect, useState } from 'react';
-
-import loader from "../../asset/820.gif";
-import { Bar } from 'react-chartjs-2';
-import { useDispatch, useSelector } from 'react-redux';
-import { getCrop, getCrop1 } from '../../Redux/action';
-
+import React, { useEffect, useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getCrop } from "../../Redux/action";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-} from 'chart.js';
+  Box,
+  Flex,
+  FormControl,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Skeleton,
+  Stack,
+  useDisclosure,
+  Select as ChakraSelect,
+  Button,
+} from "@chakra-ui/react";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import { Bar, getElementsAtEvent } from "react-chartjs-2";
+import { DataGrid } from "@mui/x-data-grid";
 
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-import { Box, Grid, GridItem, Image, Button, TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td } from '@chakra-ui/react';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
-
-export const options = {
-  plugins: {
-    title: {
-      display: true,
-      text: 'Total Production of the Crops',
-    },
-  },
-  responsive: true,
-  interaction: {
-    mode: 'index',
-    intersect: false,
-  },
-  scales: {
-    x: {
-      stacked: true,
-    },
-    y: {
-      stacked: true,
-      max: 10000000,
-    },
-  },
-};
-
-const names = [
-  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
-];
-const yearSelect = [
-  "1997-98", "1998-99", "1999-00", "2000-01", "2001-02", "2002-03",
-  "2003-04", "2004-05", "2005-06", "2006-07", "2007-08", "2008-09",
-  "2009-10", "2010-11", "2011-12", "2012-13", "2013-14", "2014-15",
-  "2015-16", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21"
+const allStates = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Delhi",
+  "Puducherry",
 ];
 
 const Dashboard = () => {
-  const { isLoading, isError, CropData } = useSelector((state) => state.reducer);
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isLoading, CropData } = useSelector((state) => state.reducer);
   const dispatch = useDispatch();
-  const [personName, setPersonName] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
-  
+  const [stateName, setStateName] = useState("");
+  const [selectYear, setSelectYear] = useState("");
+  const [selectedCrop, setSelectedCrop] = useState("");
 
-  const fetchData = () => {
-    dispatch(getCrop({ state: personName, year: selectedYear }));
-  };
-
-  const fetchData1 = () => {
-    dispatch(getCrop1());
-  };
   useEffect(() => {
-    fetchData();
-    fetchData1()
+    onOpen();
   }, []);
 
+  useEffect(() => {
+    dispatch(getCrop({ state: stateName, year: selectYear, crop: selectedCrop }));
+  }, [dispatch, stateName, selectYear, selectedCrop]);
 
-  if (isLoading || isError || !CropData || !CropData.formattedCropData || !CropData.formattedYearlyData) {
-    return (
-      <div>
-        <Box
-          w="100%"
-          h="100vh"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <Image margin="auto" w="100px" src={loader} alt="loader" />
-        </Box>
-      </div>
-    );
-  }
-let updatedState = CropData.productionData
+  const data = CropData.data?.products || [];
+
+  const rows = Array.isArray(data)
+    ? data.map((row, index) => ({
+        id: index + 1,
+        Crop: row.Crop,
+        Season: row.Season,
+        Area: Number(row.Area),
+        Year: Number(row.Year),
+        Production: `${Number(row.Production)} Tonnes`,
+        Area_Units: row.Area_Units,
+        State: row.State,
+        District: row.District,
+        Yield: Number(row.Yield),
+      }))
+    : [];
+
+    const columns = [
+      { field: "id", headerName: "ID", flex: 1 },
+      { field: "Crop", headerName: "Crop", flex: 1 },
+      { field: "Season", headerName: "Season", flex: 1 },
+      { field: "Area", headerName: "Area", flex: 1 },
+      { field: "Year", headerName: "Year", flex: 1 },
+      { field: "Production", headerName: "Production", flex: 1 },
+      { field: "Area_Units", headerName: "Area Units", flex: 1 },
+      { field: "State", headerName: "State", flex: 1 },
+      { field: "District", headerName: "District", flex: 1 },
+      { field: "Yield", headerName: "Yield", flex: 1 },
+    ];
+
+  const calculateMaxValue = (data) => {
+    return Math.max(...data);
+  };
+
+  const cropData = CropData.totalProductionPerCropArray || [];
+  const yearData = CropData.totalProductionPerYearArray || [];
+
+  // Map data for the crop-wise bar chart
+  const cropNames = cropData.map((item) => item.crop);
+  const productionValues = cropData.map((item) => item.totalProduction);
+
+  const cropChartData = {
+    labels: cropNames,
+    datasets: [
+      {
+        label: "Crop-wise Production",
+        data: productionValues,
+        backgroundColor: "rgba(75,192,192,0.2)",
+        borderColor: "rgba(75,192,192,1)",
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  // Map data for the year-wise table
+  const yearRows = yearData.map((row, index) => ({
+    id: index + 1,
+    Year: row.year,
+    Production: row.totalProduction,
+  }));
+
+  const yearNames = yearRows.map((item) => item.Year);
+  const yearProductionValues = yearRows.map((item) => item.Production);
+
+  const yearChartData = {
+    labels: yearNames,
+    datasets: [
+      {
+        label: "Year-wise Production",
+        data: yearProductionValues,
+        backgroundColor: "rgba(255,99,132,0.2)",
+        borderColor: "rgba(255,99,132,1)",
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const maxCropValue = calculateMaxValue(productionValues);
+  const maxYieldValue = calculateMaxValue(yearProductionValues);
+
+  const options = {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: "Total Production of the Crops",
+      },
+    },
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+        max: maxCropValue,
+      },
+    },
+  };
+
+  const option1 = {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: "Total Production of the Year",
+      },
+    },
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+        max: maxYieldValue,
+      },
+    },
+  };
+
+  const chartRef = useRef();
+  const charCropRef = useRef();
+
   const handleReset = () => {
-    setPersonName("");
-    setSelectedYear("");
-
-    fetchData1();
+    setStateName("");
+    setSelectYear("");
+    setSelectedCrop("");
   };
 
-  const formattedCropData = Object.fromEntries(
-    Object.entries(CropData.formattedCropData)
-      .map(([key, value]) => [key, parseInt(value)])
-      .filter(([key, value]) => !isNaN(value))
-  );
-
-  const cropLabels = Object.keys(formattedCropData);
-  const cropProduction = Object.values(formattedCropData);
-
-  const data = {
-    labels: cropLabels,
-    datasets: [
-      {
-        label: 'Crop Production Per Tonnes',
-        data: cropProduction,
-        backgroundColor: 'rgb(255, 99, 132)',
-      },
-    ],
+  const onClick = (e) => {
+    if (getElementsAtEvent(chartRef.current, e).length > 0) {
+      setSelectYear(yearChartData.labels[getElementsAtEvent(chartRef.current, e)[0].index]);
+    }
   };
 
-  const sortedYearlyData = Object.entries(CropData.formattedYearlyData)
-    .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
-    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
-  const yearlyData = {
-    labels: Object.keys(sortedYearlyData),
-    datasets: [
-      {
-        label: 'Yearly Crop Production Per Tonnes',
-        data: Object.values(sortedYearlyData),
-        backgroundColor: 'rgb(54, 162, 235)',
-      },
-    ],
+  const onCropClick = (e) => {
+    if (getElementsAtEvent(charCropRef.current, e).length > 0) {
+      setSelectedCrop(cropChartData.labels[getElementsAtEvent(charCropRef.current, e)[0].index]);
+    }
   };
-
-  const handleSearch = () => {
-    fetchData();
+  const handleChange = (event, type) => {
+    const {
+      target: { value },
+    } = event;
+    if (type === "state") {
+      setStateName(typeof value === "string" ? value.split(",") : value);
+    }
+    onClose();
   };
 
   return (
     <Box w="100%">
-      <Grid w="95%" gap={2} templateColumns={['repeat(1, 1fr)', 'repeat(1, 1fr)', 'repeat(1, 1fr)', 'repeat(2, 1fr)']} m="auto" >
-        <GridItem>
-          <Bar options={options} data={data} />
-        </GridItem>
-        <GridItem>
-          <Bar options={options} data={yearlyData} />
-        </GridItem>
-      </Grid>
-
-      <Box w="80%" m='auto' mt="3" display="flex" justifyContent="space-between" >
-        <Button onClick={handleReset}>
-          Reset
-        </Button>
-
-        <Button onClick={handleSearch}>
-          Search
-        </Button>
-        <FormControl sx={{ m: 1, width: 300 }}>
-          <InputLabel id="demo-multiple-name-label">State</InputLabel>
-          <Select
-            labelId="demo-multiple-name-label"
-            id="demo-multiple-name"
-            value={personName}
-            onChange={(e) => setPersonName(e.target.value)}
-            input={<OutlinedInput label="Name" />}
-            MenuProps={MenuProps}
-          >
-            {names.map((name) => (
-              <MenuItem
-                key={name}
-                value={name}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Select State</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormControl>
+              <ChakraSelect
+                placeholder="Select State"
+                value={stateName}
+                onChange={(e) => handleChange(e, "state")}
               >
-                {name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+                {allStates.map((state) => (
+                  <option key={state} value={state}>
+                    {state}
+                  </option>
+                ))}
+              </ChakraSelect>
+            </FormControl>
+          </ModalBody>
 
-        <FormControl sx={{ m: 1, width: 300 }}>
-          <InputLabel id="demo-multiple-year-label">Year</InputLabel>
-          <Select
-            labelId="demo-multiple-year-label"
-            id="demo-multiple-year"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
-            input={<OutlinedInput label="Year" />}
-            MenuProps={MenuProps}
-          >
-            {yearSelect.map((year) => (
-              <MenuItem key={year} value={year}>
-                {year}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
-      <TableContainer>
-        <Table variant='simple'>
-          <TableCaption>Crop Data</TableCaption>
-          <Thead>
-            <Tr>
-             <Th>State</Th> 
-              <Th>Year</Th>
-              <Th>Crop</Th>
-              <Th>District</Th>
-              <Th>Area</Th>
-              <Th>Yield</Th>
-              <Th>Production</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {updatedState.map((data, index) => (
-              <Tr key={index}>
-                 <Td>{data.state}</Td> 
-                <Td>{data.Year}</Td>
-                <Td>{data.Crop}</Td>
-                <Td>{data.District}</Td>
-                <Td>{data.Area}</Td>
-                <Td>{Math.floor(data.Yield)}</Td>
-                <Td>{data.Production} Tonnes</Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
+      <Flex p={4} alignItems="center" w="100%" gap={3} margin="auto">
+        <Box>
+          <FormControl>
+            <ChakraSelect
+              placeholder="Select State"
+              value={stateName}
+              onChange={(e) => handleChange(e, "state")}
+            >
+              {allStates.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </ChakraSelect>
+          </FormControl>
+        </Box>
+
+        <Box>
+          <Button onClick={handleReset} colorScheme="red">
+            Reset
+          </Button>
+        </Box>
+      </Flex>
+
+      {isLoading ? (
+        <Box w="80%" m="auto" mt={10}>
+          <Stack spacing={4}>
+            <Skeleton height="150px" />
+            <Skeleton height="250px" />
+            <Skeleton height="300px" />
+          </Stack>
+        </Box>
+      ) : (
+        <>
+          {cropData.length > 0 ? (
+            <Box w="90%" m="auto">
+              <Bar options={options} onClick={onCropClick} ref={charCropRef} data={cropChartData} />
+            </Box>
+          ) : (
+            <Box w="90%" m="auto" textAlign="center" mt={4}>
+       
+            </Box>
+          )}
+
+          <Box marginTop={100}>
+            {yearData.length > 0 ? (
+              <Box w="90%" m="auto" mt={4}>
+                <Bar options={option1} data={yearChartData} onClick={onClick} ref={chartRef} />
+              </Box>
+            ) : (
+              <Box w="90%" m="auto" textAlign="center" mt={4}>
+             
+              </Box>
+            )}
+          </Box>
+
+          <Box marginTop={16}>
+            {rows.length > 0 ? (
+              <Box w="80%" margin="auto">
+                <DataGrid
+                  style={{ height: "350px" }}
+                  rows={rows}
+                  columns={columns}
+                  initialState={{
+                    pagination: {
+                      paginationModel: { page: 0, pageSize: 5 },
+                    },
+                  }}
+                  enableColumnResize
+                  pageSizeOptions={[5, 25, 50, 100]}
+                  disableRowSelectionOnClick
+                  disableColumnMenu
+                />
+              </Box>
+            ) : (
+              <Box w="80%" margin="auto" textAlign="center" mt={4}>
+                No data available.
+              </Box>
+            )}
+          </Box>
+        </>
+      )}
     </Box>
   );
 };
