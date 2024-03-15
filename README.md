@@ -41,7 +41,7 @@ Once executed, the frontend application will be accessible at http://localhost:3
   - `AWS `
 
 - #### For Styling:-  
-   - `Chakra UI`
+  - `Chakra UI`
   - `Material UI`
    
 
