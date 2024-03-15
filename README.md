@@ -17,7 +17,7 @@ Open another terminal window and navigate to the frontend directory of the proje
 
    ✨npm start
   
-Once executed, the frontend application will be accessible at http://localhost:3005 in your web browser.
+Once executed, the frontend application will be accessible at http://localhost:3000 in your web browser.
 
  | Collaborator| Resume | Github                                                                                                                         |Linkedin                                                                                                                                                            | Portfolio                                                                                                                                    |
 | -------------| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -43,6 +43,17 @@ Once executed, the frontend application will be accessible at http://localhost:3
 - #### For Styling:-
    -  `Chakra UI`
    - `Material UI`
+
+## ⭕Steps to run our Project :
+
+✨Clone the repository.
+
+✨Run the command `npm install` in both the frontend and backend folders.
+
+✨Run the command `npm run server` in the backend folder.
+
+✨Run the command `npm start` in the frontend folder run on localhost:3000.
+
    
 
 
