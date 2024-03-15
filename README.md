@@ -38,11 +38,11 @@ Once executed, the frontend application will be accessible at http://localhost:3
 - #### For Backend:-
    - `NodeJS`
    - `ExpressJS`
-   - `AWS `
+   - `AWS`
 
 - #### For Styling:-
--  `Chakra UI`
-- `Material UI`
+   -  `Chakra UI`
+   - `Material UI`
    
 
 
