@@ -19,9 +19,10 @@ Open another terminal window and navigate to the frontend directory of the proje
   
 Once executed, the frontend application will be accessible at http://localhost:3000 in your web browser.
 
- | Owner | Github                                                                                                                         |Linkedin                                                                                                                                                            | Portfolio                                                                                                                                    |
+| Collaborators|  | Github                                                                                                                         |Linkedin                                                                                                                                                            | Portfolio                                                                                                                                    |
 | -------------| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Prince Singh [![github](https://img.shields.io/badge/github-1DA1F2?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mrprincesingh)| [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/prince-singh-a35963199/) |[![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://mrprincesingh.github.io/) |
+ 
+| Prince Singh  | [![github](https://img.shields.io/badge/github-1DA1F2?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mrprincesingh)| [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/prince-singh-a35963199/) |[![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://mrprincesingh.github.io/) |
 
 
   ---
