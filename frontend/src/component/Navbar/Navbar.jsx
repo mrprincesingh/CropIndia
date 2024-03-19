@@ -1,7 +1,6 @@
 import { Box, Button, CloseButton, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, HStack, IconButton, Image, Text, chakra, useColorModeValue, useDisclosure, useMediaQuery } from '@chakra-ui/react';
 import React, { Fragment } from 'react';
 import { AiOutlineMenu } from 'react-icons/ai';
-import ToggleColorMode from '../../theme/ToggleColorMode';
 import logo1 from "../../asset/BharatGhar.png"
 
 const options1 = {
