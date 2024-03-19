@@ -72,20 +72,7 @@ const Navbar = () => {
                     <DrawerCloseButton />
                     <DrawerHeader>  Bharat Ghar</DrawerHeader>
                     <DrawerBody>
-                      {/* {options1.items.map((el, index) => (
-                        <Box key={index} m="25px auto" fontSize={18} fontWeight={"500"}>
-
-                          <Link to={options1.links[index]} onClick={onClose}>
-                            <Text
-                              cursor="pointer"
-                              color="black"
-                              fontFamily="Serif"
-                            >
-                            prince
-                            </Text>
-                          </Link>
-                        </Box>
-                      ))} */}
+                     
 
                     
                       <Box m="25px auto"></Box>
